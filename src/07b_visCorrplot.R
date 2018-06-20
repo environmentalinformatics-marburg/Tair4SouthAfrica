@@ -8,7 +8,9 @@ load(paste0(modelpath,"/V1/modeldata.RData"))
 names(dataset)[names(dataset)=="Dem"] <- "Elevation"
 names(dataset)[names(dataset)=="Precseason"] <- "Rainy Season"
 names(dataset)[names(dataset)=="sunzenith"] <- "Solar Zenith Angle"
-crl <- cor(dataset[,c(3:14,20,23,25,15)])
+names(dataset)[names(dataset)=="ndvi"] <- "NDVI"
+
+crl <- cor(dataset[,c(3:14,17,20,23,25,15)])
 col2 <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582", "#FDDBC7",
                            "#FFFFFF", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC", "#053061"))
 pdf(paste0(vispath,"/corrplotV2.pdf"),width=8,height=7)
