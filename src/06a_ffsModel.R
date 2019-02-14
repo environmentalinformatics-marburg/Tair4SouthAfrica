@@ -1,13 +1,14 @@
 rm(list=ls())
 library(caret)
 library(randomForest)
-library(CAST)
+library(CAST,lib.loc="/home/h/hmeyer1/R/")
 library(lubridate)
 library(parallel)
 library(doParallel)
 #mainpath <- "/home/hanna/Documents/Projects/IDESSA/airT/forPaper/modeldat/"
 #mainpath <- "/mnt/sd19007/casestudies/hmeyer/IDESSA_TAIR/V2/"
-mainpath <- "/home/hmeyer/Tair/"
+#mainpath <- "/home/hmeyer/Tair/"
+mainpath <- "/scratch/tmp/hmeyer1/Tair4SA/"
 
 nrOfStations <- 40
 trainingYears <- 2010:2011
@@ -15,6 +16,7 @@ trainingYears <- 2010:2011
 sampleSize_ffs <- 20000
 method <- "rf"
 #method <- "gbm"
+ncores <- 20
 
 load(paste0(mainpath,"modeldata.RData"))
 dataset <- dataset[complete.cases(dataset[,3:17]),]
@@ -45,13 +47,13 @@ station_out_ffs <- CreateSpacetimeFolds(traindat_ffs,spacevar = "Station",
 ## predictor und response definieren
 predictors <- c("VIS0.6","VIS0.8","NIR1.6","IR3.9","WV6.2","WV7.3",
                 "IR8.7","IR9.7","IR10.8","IR12.0","IR13.4","sunzenith",
-                 "Precseason","ndvi","Dem","Continent")
+                 "Precseason","ndvi","Dem","Continent","Viewangle")
 predictors_ffs <- traindat_ffs[,predictors]
 response_ffs <- traindat_ffs$Tair
 
 
 ## parallel prozessierung starten
-cl <- makeCluster(detectCores()-5)
+cl <- makeCluster(ncores)
 registerDoParallel(cl)
 
 ffs_model <- ffs(predictors_ffs,

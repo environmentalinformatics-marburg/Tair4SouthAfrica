@@ -87,6 +87,10 @@ dist <- crop(dist,dem)
 dist <- stretch(dist,0,100)
 writeRaster(dist,"Continent.tif")
 
+viewangle <- raster("satview.tif")
+viewangle <- projectRaster(viewangle,template)
+viewangle <- resample(viewangle,template)
+
 
 auxdat <- data.frame("Station"=shp$plot,"Biome"=extract(biomes,shp),
                      "Dem"=extract(dem,shp),
@@ -94,7 +98,8 @@ auxdat <- data.frame("Station"=shp$plot,"Biome"=extract(biomes,shp),
                      "Prec"=extract(prescum,shp),
                      "Continent"=extract(dist,shp),
                      "Biome_agg"=extract(biomes_agg,shp),
-                     "Precseason"=extract(seasonality,shp))
+                     "Precseason"=extract(seasonality,shp),
+                     "Viewangle"=extract(viewangle,shp))
 shp <- shp[shp$plot%in%unique(dataset$Station),]
 shp <- merge(shp,auxdat,by.x="plot",by.y="Station")
 shp <- shp[shp$source=="SAWS",]
@@ -114,8 +119,10 @@ tmean_res <- resample(tmean,template)
 dem_res <- resample(dem,template)
 seasonality <- resample(seasonality,template)
 biomes_agg_res <- resample(biomes_agg,template)
+
+
 predraster <- stack(dist_res,biomes_res,prescum_res,
-                    tmean_res,dem_res,biomes_agg_res,seasonality)
+                    tmean_res,dem_res,biomes_agg_res,seasonality,viewangle)
 names(predraster) <- c("Continentality","Biome","Prec",
-                       "Tmean","Dem","Biome_agg","Precseason")
+                       "Tmean","Dem","Biome_agg","Precseason","Viewangle")
 writeRaster(predraster,"predictors.tif",overwrite=TRUE)
